@@ -1,0 +1,38 @@
+# example : importCSV 1000.csv
+casing off
+equ sm to char(255), am to char(254), vm tochar(253)
+tclread line
+line=trim(line)
+filename=field(line, ' ',2)
+execute '!cat ':filename capturing content
+execute 'df ':filename
+execute 'cf ':filename:' 1 3'
+open filename to csv else
+ stop 203, filename
+end
+open 'dict',filename to dict else
+ stop 204, 'dict ':filename
+end
+dictcontent = field(content, am, 1)
+dictcontent = change(dictcontent, ' ', '.')
+itemnum = count(dictcontent, ',') + 1
+print 'dict :':itemnum
+a15 = field(content, am, 1)
+a15 = change(a15, ' ', '.')
+a15 = change(a15, ',', ' ')
+writev a15 on dict,filename,15
+for i = 1 to itemnum
+ itemid = field(dictcontent, ',', i)
+ item = 'A':am:i:am:itemid
+ write item on dict,itemid
+next i
+itemnum = count(content, am)
+print itemnum
+for i = 2 to itemnum
+ item = field(content, am, i)
+ itemid = field(item, ',', 7)
+ item = change(item, ',', am)
+ write item on csv,itemid
+next i
+close csv
+close dict
